@@ -1,11 +1,12 @@
-const expres = require('express')
-const app = expres()
+const express = require('express')
+const app = express()
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
 const cors = require('cors')
 
 app.use(bodyParser.json())
 app.use(cors())
+app.use(express.static('build'))
 
 morgan.token('reqData', function (req) {
   return JSON.stringify(req.body)
@@ -72,7 +73,7 @@ app.post('/api/persons', (req,res) => {
   persons.find(person => person.name === body.name)
 
   if (!body.name || !body.number) {
-    return res.send.status(400).json({ 
+    return res.status(400).json({ 
       error: 'name or number missing'
     })
   } else if (findPerson) {
