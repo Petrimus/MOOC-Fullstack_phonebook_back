@@ -1,6 +1,8 @@
+/* eslint-disable no-console */
 const mongoose = require('mongoose')
 
 if (process.argv.length < 3) {
+  // eslint-disable-next-line no-console
   console.log('give password as argument')
   process.exit()
 }
@@ -35,7 +37,6 @@ if (process.argv.length < 4) {
 
   person.save()
     .then(response => {
-      
       console.log(
         `Lisätään ${response.name} numero ${response.number} luetteloon`
       )

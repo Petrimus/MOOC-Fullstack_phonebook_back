@@ -1,4 +1,4 @@
-if(process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
 }
 
@@ -40,7 +40,7 @@ app.get('/api/persons', (req, res) => {
 
 app.delete('/api/persons/:id', (req, res, next) => {
   PersonModel.findByIdAndRemove(req.params.id)
-    .then(result => {
+    .then(() => {
       res.status(204).end()
     })
     .catch(error => next(error))
@@ -71,10 +71,14 @@ app.post('/api/persons', (req, res, next) => {
     number: body.number
   })
 
-  person.save().then(savedPerson => {
-    res.json(savedPerson.toJSON())
-  })
-  .catch(error => next(error))
+  person.save()
+    .then(savedPerson => {
+      return savedPerson.toJSON()
+    })
+    .then(savedAndFormattedPerson => {
+      res.json(savedAndFormattedPerson)
+    })
+    .catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (req, res, next) => {
@@ -84,14 +88,14 @@ app.put('/api/persons/:id', (req, res, next) => {
     number: body.number
   }
   PersonModel.findByIdAndUpdate(req.params.id, person, { new: true })
-  .then(updatedPerson => {
-    res.json(updatedPerson.toJSON())
-  })
-  .catch(error => next(error))
+    .then(updatedPerson => {
+      res.json(updatedPerson.toJSON())
+    })
+    .catch(error => next(error))
 })
 
 const errorHandler = (error, request, response, next) => {
-  if (error.name === 'CastError' && error.kind == 'ObjectId') {
+  if (error.name === 'CastError' && error.kind === 'ObjectId') {
     return response.status(400).send({ error: 'malformatted id' })
   } else if (error.name === 'ValidationError') {
     return response.status(400).send({ error: error.message })
@@ -104,6 +108,7 @@ app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
+  // eslint-disable-next-line no-console
   console.log(`server running on port ${PORT}`)
 })
 
