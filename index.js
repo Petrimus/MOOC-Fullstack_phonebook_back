@@ -8,8 +8,7 @@ const bodyParser = require('body-parser')
 const morgan = require('morgan')
 const cors = require('cors')
 const PersonModel = require('./models/person')
-
-
+const middleware = require('./middleware')
 
 app.use(express.static('build'))
 app.use(bodyParser.json())
@@ -72,9 +71,7 @@ app.post('/api/persons', (req, res, next) => {
   })
 
   person.save()
-    .then(savedPerson => {
-      return savedPerson.toJSON()
-    })
+    .then(savedPerson => savedPerson.toJSON())
     .then(savedAndFormattedPerson => {
       res.json(savedAndFormattedPerson)
     })
@@ -94,17 +91,8 @@ app.put('/api/persons/:id', (req, res, next) => {
     .catch(error => next(error))
 })
 
-const errorHandler = (error, request, response, next) => {
-  if (error.name === 'CastError' && error.kind === 'ObjectId') {
-    return response.status(400).send({ error: 'malformatted id' })
-  } else if (error.name === 'ValidationError') {
-    return response.status(400).send({ error: error.message })
-  } else if (error.name === 'ValidatorError') {
-    return response.status(400).send({ error: error.message })
-  }
-  next(error)
-}
-app.use(errorHandler)
+app.use(middleware.unknownEndpoint)
+app.use(middleware.errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {

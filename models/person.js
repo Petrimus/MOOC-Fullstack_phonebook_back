@@ -14,6 +14,7 @@ mongoose.connect(url, { useNewUrlParser: true })
     console.log('error connecting to MongoDB')
   })
 mongoose.set('useCreateIndex', true)
+mongoose.set('useFindAndModify', false)
 
 const personSchema = new mongoose.Schema({
   name: {
@@ -30,7 +31,7 @@ personSchema.plugin(uniqueValidator)
 
 personSchema.set('toJSON', {
   transform: (document, returnedObject) => {
-    returnedObject.id = returnedObject._id
+    returnedObject.id = returnedObject._id.toString()
     delete returnedObject._id
     delete returnedObject.__v
   }
